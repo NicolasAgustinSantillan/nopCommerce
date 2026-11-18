@@ -1,17 +1,21 @@
+name: nopcommerce
+
 services:
     nopcommerce_web:
-        build: .
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile
         container_name: nopcommerce
         ports:
             - "80:80"
         depends_on:
             - nopcommerce_database
     nopcommerce_database:
-        image: "postgres:latest"
-        container_name: nopcommerce_postgres_server
+        image: "mysql:latest"
+        container_name: nopcommerce_mysql_server
         restart: "always"
         environment:
-          POSTGRES_PASSWORD: "nopCommerce_db_password"
+          MYSQL_ROOT_PASSWORD: "nopCommerce_db_password"
 
 volumes:
   nopcommerce_data:            

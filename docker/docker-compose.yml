@@ -1,6 +1,10 @@
+name: nopcommerce
+
 services:
     nopcommerce_web:
-        build: .
+        build:
+            context: ..
+            dockerfile: docker/Dockerfile
         container_name: nopcommerce
         ports:
             - "80:80"

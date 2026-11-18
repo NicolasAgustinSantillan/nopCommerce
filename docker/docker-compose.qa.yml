@@ -1,0 +1,39 @@
+# Despliegue de QA (tienda-qa.antaresautomation.com) usando la imagen oficial de Docker Hub.
+# Requiere las redes externas "database-antares-net" y "reverse-proxy-net" (Traefik).
+# Uso: NOP_VERSION=4.80.x docker compose -f docker/docker-compose.qa.yml up -d
+name: nopcommerce-qa
+
+services:
+  nopcommerce:
+    image: nopcommerceteam/nopcommerce:${NOP_VERSION}   # ej: 4.80.x — ver Docker Hub
+    container_name: nopcommerce
+    restart: unless-stopped
+    environment:
+      - TZ=America/Argentina/Buenos_Aires
+      - HostingConfig__UseProxy=true
+    volumes:
+      - nop_appdata:/app/App_Data          # config, conexión a DB, claves
+      - nop_images:/app/wwwroot/images     # fotos de productos
+      - nop_plugins:/app/Plugins           # plugins instalados
+    networks:
+      - database-antares-net
+      - reverse-proxy-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=reverse-proxy-net"
+      - "traefik.http.routers.antares-tienda.rule=Host(`tienda-qa.antaresautomation.com`)"
+      - "traefik.http.routers.antares-tienda.entrypoints=websecure"
+      - "traefik.http.routers.antares-tienda.tls=true"
+      - "traefik.http.routers.antares-tienda.tls.certresolver=letsencrypt"
+      - "traefik.http.services.antares-tienda.loadbalancer.server.port=80"
+
+networks:
+  database-antares-net:
+    external: true
+  reverse-proxy-net:
+    external: true
+
+volumes:
+  nop_appdata:
+  nop_images:
+  nop_plugins:
